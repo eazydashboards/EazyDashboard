@@ -449,9 +449,17 @@ const SearchMembers = () => {
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 font-bold flex items-center justify-center shrink-0 text-sm">
-                        {m.name.charAt(0)}
-                      </div>
+                      {m.photoUrl ? (
+                        <img
+                          src={m.photoUrl}
+                          alt={m.name}
+                          className="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-200"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 font-bold flex items-center justify-center shrink-0 text-sm">
+                          {m.name.charAt(0)}
+                        </div>
+                      )}
                       <div>
                         <h3 className="font-extrabold text-slate-900 text-base leading-tight">
                           {m.name}
@@ -530,9 +538,17 @@ const SearchMembers = () => {
                       >
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center shrink-0 text-sm">
-                              {m.name.charAt(0)}
-                            </div>
+                            {m.photoUrl ? (
+                              <img
+                                src={m.photoUrl}
+                                alt={m.name}
+                                className="w-9 h-9 rounded-full object-cover shrink-0 border border-slate-200"
+                              />
+                            ) : (
+                              <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center shrink-0 text-sm">
+                                {m.name.charAt(0)}
+                              </div>
+                            )}
                             <div>
                               <p className="font-bold text-slate-900">{m.name}</p>
                               <p className="text-xs text-slate-400">{formatCurrency(m.monthlyFee)}/month</p>

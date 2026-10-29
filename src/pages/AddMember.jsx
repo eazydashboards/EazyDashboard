@@ -11,6 +11,10 @@ import {
   RefreshCw,
   Sparkles,
   ShieldCheck,
+  Camera,
+  Upload,
+  X,
+  Image as ImageIcon,
 } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
@@ -40,6 +44,37 @@ const AddMember = () => {
   // Card Issued Toggle (1st Card Free on Admission)
   const [cardIssued, setCardIssued] = useState(true);
   const [cardFee, setCardFee] = useState(100);
+
+  // Member Photo State
+  const [photo, setPhoto] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file (PNG, JPG, WEBP)");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image file size should be less than 5MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPhoto(reader.result);
+      setPhotoPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removePhoto = () => {
+    setPhoto(null);
+    setPhotoPreview(null);
+  };
 
   const fetchDefaults = async () => {
     setFetchingReg(true);
@@ -103,6 +138,7 @@ const AddMember = () => {
         registrationPaymentMethod: Number(registrationFee) > 0 ? registrationPaymentMethod : undefined,
         registrationTransactionId: Number(registrationFee) > 0 ? registrationTransactionId.trim() : undefined,
         cardIssued,
+        photo: photo || undefined,
       };
 
       const res = await api.post("/members", payload);
@@ -115,6 +151,8 @@ const AddMember = () => {
       setMobile("");
       setRegistrationTransactionId("");
       setCardIssued(true);
+      setPhoto(null);
+      setPhotoPreview(null);
       fetchDefaults();
     } catch (err) {
       toast.error(
@@ -164,6 +202,63 @@ const AddMember = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8">
+          {/* Member Photo Upload Section */}
+          <div className="mb-6 p-4 sm:p-5 rounded-2xl border border-dashed border-blue-200 bg-blue-50/40 flex flex-col sm:flex-row items-center gap-4">
+            <div className="relative group shrink-0">
+              {photoPreview ? (
+                <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-blue-500 shadow-md">
+                  <img
+                    src={photoPreview}
+                    alt="Member Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={removePhoto}
+                    className="absolute top-1 right-1 p-1 bg-rose-600 hover:bg-rose-700 text-white rounded-full shadow transition-all cursor-pointer"
+                    title="Remove photo"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-24 h-24 rounded-2xl bg-white border-2 border-slate-200 flex flex-col items-center justify-center text-slate-400 shadow-sm">
+                  <Camera className="w-8 h-8 text-blue-500 mb-1" />
+                  <span className="text-[10px] font-bold text-slate-500">NO PHOTO</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 text-center sm:text-left">
+              <h4 className="text-sm font-bold text-slate-800">
+                Member Profile Picture <span className="text-xs text-slate-500 font-normal">(Optional)</span>
+              </h4>
+              <p className="text-xs text-slate-500 mt-0.5 mb-3">
+                Upload member photo for punch card and profile identification. Image will be saved to Cloudinary.
+              </p>
+
+              <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm shadow-blue-500/20 cursor-pointer transition-all">
+                <Upload className="w-3.5 h-3.5" />
+                <span>{photoPreview ? "Change Photo" : "Upload / Take Photo"}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="hidden"
+                />
+              </label>
+              {photoPreview && (
+                <button
+                  type="button"
+                  onClick={removePhoto}
+                  className="ml-2 inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
             {/* Member Full Name */}
             <div>

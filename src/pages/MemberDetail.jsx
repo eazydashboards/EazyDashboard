@@ -17,6 +17,8 @@ import {
   ShieldAlert,
   Info,
   UserCheck,
+  Camera,
+  Upload,
 } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
@@ -317,6 +319,20 @@ const MemberDetail = () => {
     }
   };
 
+  const handlePhotoChangeForEdit = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setEditForm((prev) => ({ ...prev, photo: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Format phone numbers reliably for Mobile Dialer and WhatsApp
   const rawMobile = String(member.mobile || "").replace(/[^\d+]/g, "");
   const callUrl = `tel:${rawMobile}`;
@@ -368,9 +384,17 @@ const MemberDetail = () => {
         {/* LEFT CARD: MEMBER DETAILS */}
         <div className="lg:col-span-4 bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-6">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-blue-600/20 shrink-0">
-              {member.name.charAt(0)}
-            </div>
+            {member.photoUrl ? (
+              <img
+                src={member.photoUrl}
+                alt={member.name}
+                className="w-16 h-16 rounded-2xl object-cover shadow-lg shadow-blue-600/20 shrink-0 border border-slate-200"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-blue-600/20 shrink-0">
+                {member.name.charAt(0)}
+              </div>
+            )}
             <div className="overflow-hidden">
               <h1 className="text-xl font-black text-slate-900 leading-tight truncate">
                 {member.name}
@@ -974,6 +998,33 @@ const MemberDetail = () => {
             </div>
 
             <form onSubmit={handleUpdateMember} className="mt-4 space-y-4">
+              {/* Member Photo Edit Section */}
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0 flex items-center justify-center">
+                  {editForm.photo ? (
+                    <img src={editForm.photo} alt="Preview" className="w-full h-full object-cover" />
+                  ) : member.photoUrl ? (
+                    <img src={member.photoUrl} alt="Current" className="w-full h-full object-cover" />
+                  ) : (
+                    <Camera className="w-6 h-6 text-slate-400" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-slate-800">Member Photo</p>
+                  <p className="text-[11px] text-slate-400 mb-2">Upload new photo to Cloudinary</p>
+                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold cursor-pointer transition-all">
+                    <Upload className="w-3 h-3" />
+                    <span>Change Photo</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoChangeForEdit}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
                 <input
