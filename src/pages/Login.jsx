@@ -35,11 +35,6 @@ const Login = () => {
     }
   };
 
-  const fillDemo = (u, p) => {
-    setUsername(u);
-    setPassword(p);
-  };
-
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-4xl bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-2 border border-slate-200">
@@ -60,26 +55,13 @@ const Login = () => {
             </p>
           </div>
 
-          <div className="relative z-10 mt-8 space-y-3 pt-6 border-t border-white/20">
+          <div className="relative z-10 mt-8 pt-6 border-t border-white/20">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-200">
-              <ShieldCheck className="w-4 h-4" /> Quick Demo Logins
+              <ShieldCheck className="w-4 h-4" /> Authorized Personnel Only
             </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => fillDemo("admin@gmail.com", "admin123")}
-                className="px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-xs font-bold transition-all cursor-pointer"
-              >
-                Owner: admin@gmail.com / admin123
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemo("staff", "staff123")}
-                className="px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-xs font-bold transition-all cursor-pointer"
-              >
-                Staff: staff / staff123
-              </button>
-            </div>
+            <p className="text-blue-200 text-xs mt-2">
+              Please contact your gym administrator for login credentials.
+            </p>
           </div>
         </div>
 
