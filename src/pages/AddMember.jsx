@@ -20,6 +20,7 @@ import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { formatCurrency } from "../utils/currency";
+import { compressImage } from "../utils/imageCompressor";
 
 const AddMember = () => {
   const { user } = useAuth();
@@ -49,7 +50,7 @@ const AddMember = () => {
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
 
-  const handlePhotoChange = (e) => {
+  const handlePhotoChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -58,17 +59,15 @@ const AddMember = () => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image file size should be less than 5MB");
-      return;
+    try {
+      // Compress image client-side to ~20-40 KB before upload
+      const compressed = await compressImage(file, 400, 400, 0.7);
+      setPhoto(compressed);
+      setPhotoPreview(compressed);
+    } catch (err) {
+      console.error("Compression failed:", err);
+      toast.error("Could not process image. Try another one.");
     }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPhoto(reader.result);
-      setPhotoPreview(reader.result);
-    };
-    reader.readAsDataURL(file);
   };
 
   const removePhoto = () => {

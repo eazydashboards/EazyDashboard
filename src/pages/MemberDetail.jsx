@@ -24,6 +24,7 @@ import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { formatCurrency } from "../utils/currency";
+import { compressImage } from "../utils/imageCompressor";
 
 const MONTH_NAMES = [
   "January",
@@ -319,18 +320,20 @@ const MemberDetail = () => {
     }
   };
 
-  const handlePhotoChangeForEdit = (e) => {
+  const handlePhotoChangeForEdit = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       toast.error("Please select a valid image file");
       return;
     }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setEditForm((prev) => ({ ...prev, photo: reader.result }));
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file, 400, 400, 0.7);
+      setEditForm((prev) => ({ ...prev, photo: compressed }));
+    } catch (err) {
+      console.error("Compression failed:", err);
+      toast.error("Could not process image");
+    }
   };
 
   // Format phone numbers reliably for Mobile Dialer and WhatsApp
