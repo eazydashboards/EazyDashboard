@@ -662,6 +662,20 @@ const FeesDashboard = () => {
                       
                           </td>
 
+                           <td>
+
+                                {isOwner && (
+                                  <button
+                                  type="button"
+                                  onClick={() => setDeleteModal({ open: true, payment: p })}
+                                  className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 transition-all cursor-pointer"
+                                  title="Delete Payment Record"
+                                  >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          </td>
+
                           {/* Delete Fee Button (Sirf Owner ko dikhega) */}
                           
                         </tr>

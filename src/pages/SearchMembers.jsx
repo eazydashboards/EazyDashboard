@@ -561,7 +561,7 @@ const SearchMembers = () => {
                     <th className="py-4 px-4">Mobile</th>
                     <th className="py-4 px-4">Joined</th>
                     <th className="py-4 px-4">Card Status</th>
-                    <th className="py-4 px-4">This Month Fee</th>
+                    <th className="py-4 px-4">Member Status</th>
                     <th className="py-4 px-4">Status</th>
                     <th className="py-4 px-4">Handle By</th>
                     <th className="py-4 px-6 text-right">Actions</th>
@@ -624,7 +624,7 @@ const SearchMembers = () => {
                           )}
                         </td>
 
-                        <td className="py-4 px-4 whitespace-nowrap">
+                        <td className="py-4 px-4 whitespace-nowrap capitalize">
                           {m.status}
                         </td> 
 
