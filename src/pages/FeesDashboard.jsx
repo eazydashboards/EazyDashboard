@@ -16,14 +16,52 @@ import {
   Download,
   AlertCircle,
   Eye,
+  Trash2,
+
 } from "lucide-react";
 import api from "../api/axios";
 import { useToast } from "../context/ToastContext";
 import { formatCurrency } from "../utils/currency";
 
+import { useAuth } from "../context/AuthContext";
+
+
 const FeesDashboard = () => {
   const toast = useToast();
+  const { isOwner } = useAuth();
   const [activeTab, setActiveTab] = useState("today"); // "today" | "history"
+
+
+  // Delete Modal state
+  const [deleteModal, setDeleteModal] = useState({ open: false, payment: null });
+  const [deleting, setDeleting] = useState(false);
+
+  // Delete Payment Handler
+  const handleDeletePayment = async () => {
+    if (!deleteModal.payment) return;
+    const payId = deleteModal.payment._id || deleteModal.payment.id;
+
+    setDeleting(true);
+    try {
+      const res = await api.delete(`/payments/${payId}`);
+      toast.success(res.data.message || "Fee payment deleted successfully!");
+
+      // Close modal
+      setDeleteModal({ open: false, payment: null });
+
+      // Refresh data according to active tab
+      if (activeTab === "today") {
+        fetchTodayFees();
+      } else {
+        fetchHistoryFees();
+      }
+    } catch (err) {
+      console.error("Delete payment error:", err);
+      toast.error(err.response?.data?.message || "Failed to delete payment record");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   // Today Tab state
   const [todayData, setTodayData] = useState({
@@ -172,11 +210,10 @@ const FeesDashboard = () => {
           <button
             type="button"
             onClick={() => setActiveTab("today")}
-            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === "today"
-                ? "bg-white text-blue-700 shadow-md"
-                : "bg-white/10 hover:bg-white/20 text-white"
-            }`}
+            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 cursor-pointer ${activeTab === "today"
+              ? "bg-white text-blue-700 shadow-md"
+              : "bg-white/10 hover:bg-white/20 text-white"
+              }`}
           >
             <Clock className="w-4 h-4" />
             <span>Today's Fees ({todayData.totalTransactions})</span>
@@ -185,11 +222,10 @@ const FeesDashboard = () => {
           <button
             type="button"
             onClick={() => setActiveTab("history")}
-            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === "history"
-                ? "bg-white text-blue-700 shadow-md"
-                : "bg-white/10 hover:bg-white/20 text-white"
-            }`}
+            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 cursor-pointer ${activeTab === "history"
+              ? "bg-white text-blue-700 shadow-md"
+              : "bg-white/10 hover:bg-white/20 text-white"
+              }`}
           >
             <Calendar className="w-4 h-4" />
             <span>History of Fees</span>
@@ -330,13 +366,12 @@ const FeesDashboard = () => {
                           </td>
                           <td className="py-3.5 px-4">
                             <span
-                              className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                p.type === "monthly"
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : p.type === "registration"
+                              className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${p.type === "monthly"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : p.type === "registration"
                                   ? "bg-purple-100 text-purple-800"
                                   : "bg-blue-100 text-blue-800"
-                              }`}
+                                }`}
                             >
                               {p.type || "Monthly"}
                             </span>
@@ -375,6 +410,19 @@ const FeesDashboard = () => {
                               "—"
                             )}
                           </td>
+                          <td>
+
+                                {isOwner && (
+                                  <button
+                                  type="button"
+                                  onClick={() => setDeleteModal({ open: true, payment: p })}
+                                  className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 transition-all cursor-pointer"
+                                  title="Delete Payment Record"
+                                  >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          </td>
                         </tr>
                       );
                     })}
@@ -404,22 +452,20 @@ const FeesDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setFilterType("range")}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
-                    filterType === "range"
-                      ? "bg-white text-blue-600 shadow-xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${filterType === "range"
+                    ? "bg-white text-blue-600 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                    }`}
                 >
                   Date Range
                 </button>
                 <button
                   type="button"
                   onClick={() => setFilterType("single")}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
-                    filterType === "single"
-                      ? "bg-white text-blue-600 shadow-xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${filterType === "single"
+                    ? "bg-white text-blue-600 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                    }`}
                 >
                   Specific Single Date
                 </button>
@@ -576,13 +622,12 @@ const FeesDashboard = () => {
                           </td>
                           <td className="py-3.5 px-4">
                             <span
-                              className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                p.type === "monthly"
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : p.type === "registration"
+                              className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${p.type === "monthly"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : p.type === "registration"
                                   ? "bg-purple-100 text-purple-800"
                                   : "bg-blue-100 text-blue-800"
-                              }`}
+                                }`}
                             >
                               {p.type || "Monthly"}
                             </span>
@@ -613,7 +658,12 @@ const FeesDashboard = () => {
                                 <span>View</span>
                               </Link>
                             )}
+
+                      
                           </td>
+
+                          {/* Delete Fee Button (Sirf Owner ko dikhega) */}
+                          
                         </tr>
                       );
                     })}
@@ -621,6 +671,56 @@ const FeesDashboard = () => {
                 </table>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {/* DELETE PAYMENT CONFIRMATION MODAL */}
+      {deleteModal.open && deleteModal.payment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-6 h-6" />
+            </div>
+
+            <h3 className="text-lg font-black text-slate-900 text-center">
+              Delete Fee Payment?
+            </h3>
+
+            <p className="text-xs text-slate-500 text-center mt-2 leading-relaxed">
+              Are you sure you want to delete this payment of{" "}
+              <strong className="text-slate-900">
+                {formatCurrency(deleteModal.payment.amount)}
+              </strong>{" "}
+              for{" "}
+              <strong className="text-slate-900">
+                {deleteModal.payment.memberName}
+              </strong>{" "}
+              ({deleteModal.payment.memberRegNo})?
+              <br />
+              <span className="text-rose-600 font-semibold">
+                This will reverse the payment and mark the fee as unpaid.
+              </span>
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 mt-6">
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => setDeleteModal({ open: false, payment: null })}
+                className="py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={handleDeletePayment}
+                className="py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-70"
+              >
+                {deleting ? "Deleting..." : "Yes, Delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}

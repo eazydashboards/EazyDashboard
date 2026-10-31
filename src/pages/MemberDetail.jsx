@@ -99,7 +99,7 @@ const MemberDetail = () => {
     mobile: "",
     address: "",
     monthlyFee: 2000,
-    status: "active",
+    status: "Active",
   });
   const [savingEdit, setSavingEdit] = useState(false);
 
