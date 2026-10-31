@@ -12,6 +12,7 @@ import AddMember from "./pages/AddMember";
 import SearchMembers from "./pages/SearchMembers";
 import MemberDetail from "./pages/MemberDetail";
 import PendingFees from "./pages/PendingFees";
+import FeesDashboard from "./pages/FeesDashboard";
 import Analytics from "./pages/Analytics";
 import Employees from "./pages/Employees";
 import ActivityLog from "./pages/ActivityLog";
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/" element={<Navigate to="/search" replace />} />
                 <Route path="/search" element={<SearchMembers />} />
                 <Route path="/add" element={<AddMember />} />
+                <Route path="/fees" element={<FeesDashboard />} />
                 <Route path="/member/:id" element={<MemberDetail />} />
                 <Route path="/pending" element={<PendingFees />} />
 

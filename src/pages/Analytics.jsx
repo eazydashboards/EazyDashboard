@@ -153,6 +153,41 @@ const Analytics = () => {
       </div>
 
       {/* ========================================================= */}
+      {/* 0. TODAY'S LIVE REVENUE & COUNTER COLLECTION              */}
+      {/* ========================================================= */}
+      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-800 rounded-3xl p-6 text-white shadow-md relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shrink-0 shadow-inner">
+              <Banknote className="w-8 h-8" />
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-emerald-100 text-[11px] font-bold uppercase tracking-wider mb-1">
+                <Clock className="w-3 h-3" /> Live Today Collection ({new Date().toLocaleDateString("en-GB")})
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black">
+                {formatCurrency(summary.todayRevenue || 0)}
+              </h2>
+              <p className="text-xs text-emerald-100 mt-0.5">
+                {summary.todayPaymentsCount || 0} student/member payment(s) collected today
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/20 text-right">
+              <span className="text-[10px] font-bold uppercase text-emerald-200 block">Cash in Hand</span>
+              <span className="font-extrabold text-sm">{formatCurrency(summary.todayCash || 0)}</span>
+            </div>
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/20 text-right">
+              <span className="text-[10px] font-bold uppercase text-emerald-200 block">Online / Wallet</span>
+              <span className="font-extrabold text-sm">{formatCurrency(summary.todayOnline || 0)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================= */}
       {/* 1. LIFETIME OVERALL REVENUE METRICS                       */}
       {/* ========================================================= */}
       <div className="bg-gradient-to-br from-slate-900 to-blue-950 rounded-3xl p-6 sm:p-7 text-white shadow-lg space-y-5">

@@ -14,7 +14,7 @@ import {
   X,
   CreditCard,
   ShieldCheck,
-  UserCheck,
+  ReceiptText,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -34,6 +34,7 @@ const Layout = () => {
     ...(isOwner ? [{ label: "Analytics", path: "/analytics", icon: BarChart3 }] : []),
     { label: "Search Members", path: "/search", icon: Search },
     { label: "Add Member", path: "/add", icon: UserPlus },
+    { label: "Fee Records", path: "/fees", icon: ReceiptText },
     { label: "Pending Fees", path: "/pending", icon: Clock },
     ...(isOwner
       ? [
@@ -46,10 +47,11 @@ const Layout = () => {
 
   // Primary items for mobile bottom bar
   const mobileNavItems = [
-    ...(isOwner ? [{ label: "Analytics", path: "/analytics", icon: BarChart3 }] : []),
     { label: "Search", path: "/search", icon: Search },
+    { label: "Fees", path: "/fees", icon: ReceiptText },
     { label: "Add", path: "/add", icon: UserPlus },
     { label: "Pending", path: "/pending", icon: Clock },
+    ...(isOwner ? [{ label: "Analytics", path: "/analytics", icon: BarChart3 }] : []),
   ];
 
   const getPageTitle = () => {
@@ -57,6 +59,7 @@ const Layout = () => {
     if (p.startsWith("/member/")) return "Member Profile";
     if (p === "/search") return "Search Members";
     if (p === "/add") return "Add New Member";
+    if (p === "/fees") return "Today's Fees & Payment History";
     if (p === "/pending") return "Pending Fees & Reminders";
     if (p === "/analytics") return "Gym Analytics & Revenue";
     if (p === "/employees") return "Staff & Employees";

@@ -19,6 +19,8 @@ import {
   ArrowUpDown,
   RotateCcw,
   X,
+  Banknote,
+  ReceiptText,
 } from "lucide-react";
 import api from "../api/axios";
 import { formatCurrency } from "../utils/currency";
@@ -36,6 +38,10 @@ const SearchMembers = () => {
   const [deleteModal, setDeleteModal] = useState({ open: false, member: null });
   const [deleting, setDeleting] = useState(false);
 
+  // Today's Collection state for top banner widget
+  const [todayRevenue, setTodayRevenue] = useState(0);
+  const [todayCount, setTodayCount] = useState(0);
+
   // Filter and Sort states
   const [statusFilter, setStatusFilter] = useState("all"); // "all" | "active" | "inactive"
   const [feeFilter, setFeeFilter] = useState("all"); // "all" | "paid" | "pending"
@@ -46,9 +52,18 @@ const SearchMembers = () => {
   const fetchMembers = useCallback(async (query = "") => {
     try {
       setLoading(true);
-      const res = await api.get(`/members?q=${encodeURIComponent(query)}`);
-      if (res.data.success) {
-        setMembers(res.data.members || []);
+      const [res, todayRes] = await Promise.allSettled([
+        api.get(`/members?q=${encodeURIComponent(query)}`),
+        api.get("/payments/daily-summary"),
+      ]);
+
+      if (res.status === "fulfilled" && res.value.data.success) {
+        setMembers(res.value.data.members || []);
+      }
+
+      if (todayRes.status === "fulfilled" && todayRes.value.data.success) {
+        setTodayRevenue(todayRes.value.data.totalRevenue || 0);
+        setTodayCount(todayRes.value.data.totalTransactions || 0);
       }
     } catch (err) {
       console.error("Fetch members error:", err);
@@ -140,6 +155,32 @@ const SearchMembers = () => {
 
   return (
     <div className="space-y-6">
+      {/* Today's Fee Collection Quick Banner */}
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-800 rounded-3xl p-5 sm:p-6 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0">
+            <Banknote className="w-6 h-6 text-amber-300" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-200">
+              Today's Live Counter Collection
+            </span>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <h2 className="text-2xl font-black text-white">{formatCurrency(todayRevenue)}</h2>
+              <span className="text-xs text-blue-200 font-medium">({todayCount} payment{todayCount === 1 ? "" : "s"} today)</span>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={() => navigate("/fees")}
+          className="self-start sm:self-auto inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-blue-700 hover:bg-blue-50 font-bold text-xs shadow-md transition-all cursor-pointer"
+        >
+          <ReceiptText className="w-4 h-4 text-blue-600" />
+          <span>View Today's Fees & History →</span>
+        </button>
+      </div>
+
       {/* Search Header Banner */}
       <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
